@@ -11,3 +11,31 @@
   <input name="password" type="password" placeholder="Password" required />
   <button>Login</button>
 </form>
+
+<div id="message"></div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const messageDiv = document.getElementById("message");
+
+  if (params.get("registered")) {
+    messageDiv.innerText = "Registered successfully!";
+    messageDiv.style.color = "green";
+  }
+
+  if (params.get("error") == "exists") {
+    messageDiv.innerText = "Username already exists.";
+    messageDiv.style.color = "red";
+  }
+
+  if (params.get("error") == "incorrect") {
+    messageDiv.innerText = "Incorrect password.";
+    messageDiv.style.color = "red";
+  }
+
+  if (params.get("error") == "nonexistent") {
+    messageDiv.innerText = "User not found.";
+    messageDiv.style.color = "red";
+  }
+</script>
+

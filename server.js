@@ -27,21 +27,41 @@ db.serialize(() => {
       password TEXT
     )
   `);
+  db.run(`
+    CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      name TEXT,
+      done INTEGER DEFAULT 0,
+      aim INTEGER,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
 });
+
+app.get('/dashboard', (req, res) => {
+    if (!req.session.user) {
+      return res.redirect('/login.html');
+    }
+  
+    res.sendFile(__dirname + '/private/dashboard.html');
+  });
+  
 
 // Register
 app.post('/register', async (req, res) => {
-  const hashed = await bcrypt.hash(req.body.password, 10);
-    // ? prevents injections
-  db.run(
-    `INSERT INTO users (username, password) VALUES (?, ?)`,
-    [req.body.username, hashed],
-    (err) => {
-      if (err) return res.send("User exists");
-      res.send("Registered!");
-    }
-  );
-});
+    const hashed = await bcrypt.hash(req.body.password, 10);
+  
+    db.run(
+      `INSERT INTO users (username, password) VALUES (?, ?)`,
+      [req.body.username, hashed],
+      (err) => {
+        if (err) return res.redirect('/login.html?error=exists');
+        res.redirect('/login.html?registered=1');
+      }
+    );
+  });
+  
 
 // Login
 app.post('/login', (req, res) => {
@@ -49,17 +69,35 @@ app.post('/login', (req, res) => {
     `SELECT * FROM users WHERE username = ?`,
     [req.body.username],
     async (err, user) => {
-      if (!user) return res.send("User not found");
+      if (!user) return res.redirect("/login.html?error=nonexistent");
 
       const match = await bcrypt.compare(req.body.password, user.password);
-      if (!match) return res.send("Wrong password");
+      if (!match) return res.redirect('/login.html?error=incorrect');
 
       // redirect
       req.session.user = user.id;
-      res.redirect('/dashboard.html');
+      res.redirect('/dashboard');
     }
   );
 });
+
+app.get('/goals', (req, res) => {
+
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+  
+    db.all(
+      `SELECT * FROM goals WHERE user_id = ?`,
+      [req.session.user],
+      (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(rows);
+      }
+    );
+  
+  });
+  
 
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
