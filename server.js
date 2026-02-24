@@ -34,8 +34,8 @@ db.serialize(() => {
       name TEXT,
       done INTEGER DEFAULT 0,
       aim INTEGER,
-      from DATE,
-      to DATE,
+      start_date DATE,
+      end_date DATE,
       lock BOOLEAN,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
@@ -110,14 +110,34 @@ app.get('/settings', (req, res) => {
 
 // add goal
 app.post('/make_goal', async (req, res) => {
-    
+    let per = 1;
+    if (req.body.period == "week") {
+        per = 7;
+    } else if (req.body.period == "month") {
+        per = 30.5;
+    } else if (req.body.period == "year") {
+        per = 365;
+    }
+    const date1 = new Date(req.body.from);
+    const date2 = new Date(req.body.to);
+    const timeDiff = date2 - date1; // diff in milliseconds
+    const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // convert to days
+
+    const total = req.body.freq * daysDiff * req.body.leniency / 100 / per ;
+
+    const isLocked = req.body.lock === 'on' ? 1 : 0;
     db.run(
-        `INSERT INTO users (username, password) VALUES (?, ?)`,
-        [req.body.username, hashed],
+        `INSERT INTO goals (
+        user_id, name, aim, start_date, end_date, lock)
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [req.session.user, req.body.name, Math.round(total) || 0, 
+            req.body.from, req.body.to, isLocked],
         (err) => {
-          if (err) return res.redirect('/login.html?error=exists');
-          res.redirect('/login.html?registered=1');
-        }
+            if (err) {
+                console.error(err);
+                return res.redirect('/settings?error=db');
+            }
+            res.redirect('/dashboard?saved=1');}
       );
 });
   
