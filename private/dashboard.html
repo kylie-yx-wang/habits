@@ -1,5 +1,6 @@
 <h2>Your Goals</h2>
 <div id="goals"></div>
+<a href="/settings">Settings</a>
 
 <script>
 async function loadGoals() {
@@ -9,11 +10,18 @@ async function loadGoals() {
   const container = document.getElementById("goals");
   container.innerHTML = "";
 
+  // 1. Check if the array is empty
+  if (goals.length === 0) {
+    container.innerHTML = `<p>You have no goals yet. Set a goal in settings!</p>`;
+    return; // Exit the function early
+  }
+
+  // 2. If goals exist, loop through them
   goals.forEach(goal => {
     const div = document.createElement("div");
     div.innerHTML = `
       <strong>${goal.name}</strong><br>
-      Progress: ${goal.progress} / ${goal.objective}
+      Progress: ${goal.done} / ${goal.aim}
       <hr>
     `;
     container.appendChild(div);

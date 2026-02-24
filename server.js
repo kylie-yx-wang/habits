@@ -34,6 +34,9 @@ db.serialize(() => {
       name TEXT,
       done INTEGER DEFAULT 0,
       aim INTEGER,
+      from DATE,
+      to DATE,
+      lock BOOLEAN,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
   `);
@@ -97,8 +100,29 @@ app.get('/goals', (req, res) => {
     );
   
   });
+
+app.get('/settings', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login.html');
+    }
+    res.sendFile(__dirname + '/private/settings.html');
+});
+
+// add goal
+app.post('/make_goal', async (req, res) => {
+    
+    db.run(
+        `INSERT INTO users (username, password) VALUES (?, ?)`,
+        [req.body.username, hashed],
+        (err) => {
+          if (err) return res.redirect('/login.html?error=exists');
+          res.redirect('/login.html?registered=1');
+        }
+      );
+});
   
 
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
