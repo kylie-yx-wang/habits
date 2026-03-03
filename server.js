@@ -146,7 +146,16 @@ app.post('/edit_goal', async(req, res) => {
          [req.body.numTimes, req.body.newEnd, req.body.id],
          (err) => {
             if (err) return res.redirect('/settings?error=update');
-            res.redirect('/dashboard?updated=1');
+            res.redirect('/settings?updated=1');
+        });
+});
+
+app.post('/delete_goal', async(req, res) => {
+    db.run(`DELETE FROM goals WHERE id=?`,
+         [req.body.id],
+         (err) => {
+            if (err) return res.redirect('/settings?error=update');
+            res.redirect('/settings?updated=1');
         });
 });
   
