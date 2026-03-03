@@ -140,6 +140,15 @@ app.post('/make_goal', async (req, res) => {
             res.redirect('/dashboard?saved=1');}
       );
 });
+
+app.post('/edit_goal', async(req, res) => {
+    db.run(`UPDATE goals SET aim=?, end_date=? WHERE id=?`,
+         [req.body.numTimes, req.body.newEnd, req.body.id],
+         (err) => {
+            if (err) return res.redirect('/settings?error=update');
+            res.redirect('/dashboard?updated=1');
+        });
+});
   
 
 app.listen(3000, () => {

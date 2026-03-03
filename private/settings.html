@@ -4,7 +4,7 @@
 
 <h1>Settings</h1>
 
-<button id="goal_btn">Make a goal</button>
+<button id="goal_btn">Make a new goal</button>
 
 <div id="goal_inputs">
     <form method="POST" action="/make_goal">
@@ -38,10 +38,12 @@
         <input type="checkbox" id="goal_lock" name="lock">
         <label for="lock">Lock this goal after 1 week of the start date (I will not be able to edit or delete it).</label><br><br>
 
-        <input type="submit" value="Save">
+        <input type="submit" value="Set goal!">
     </form>
-
 </div>
+
+<h2>Your Goals</h2>
+<div id="setting_goals"></div>
 
 <script>
     // make goal button (open the goal set page)
@@ -62,6 +64,77 @@
     slider.oninput = function() {
         output.innerHTML = this.value;
     }
+
+    function editGoal(goalId) {
+        document.getElementById(`edit${goalId}`).style.display = "block";
+    }
+
+
+    const editDiv = document.getElementById("setting_goals");    
+    editDiv.addEventListener('click', (e) => {
+        if (e.target.classList.contains('edit-btn')) {
+        const goalId = e.target.getAttribute('data-id');
+        editGoal(goalId);
+        }
+    });
+
+    async function loadSettingsGoals() {
+        try {
+            const response = await fetch('/goals');
+            const setting_goals = await response.json();
+
+            const container = document.getElementById("setting_goals");
+            container.innerHTML = "";
+
+            // 1. Check if the array is empty
+            if (setting_goals.length === 0) {
+                container.innerHTML = `<p>You have no goals yet. Click "Make a new goal" to set your first goal!</p>`;
+                return; // Exit the function early
+            }
+
+            // 2. If goals exist, loop through them
+            setting_goals.forEach(goal => {
+                const div = document.createElement("div");
+                const today = new Date();
+                const lock_date = new Date(goal.start_date);
+                lock_date.setDate(lock_date.getDate()+7);
+                const isLocked = goal.lock == 1 && today > lock_date;
+
+                div.innerHTML = `
+                <strong>${goal.name}</strong> ${isLocked ? '🔒' : ''}<br>
+                Target: ${goal.aim} before ${goal.end_date}
+                <button class="edit-btn" data-id="${goal.id}" ${isLocked ? 'disabled' : ''}>
+                    ${isLocked ? 'Locked' : 'Edit'}</button>
+                <div class="goal_edits" id="edit${goal.id}">
+                        <form method="POST" action="/edit_goal">
+                            <input type="hidden" name="id" value="${goal.id}">
+
+                            <p>I will do my goal: </p><br>
+                            <input type="number" name="numTimes" 
+                                value="${goal.aim}">
+                            <label for="numTimes"> time(s)</label><br><br>
+                            <label for="newEnd">before </label>
+                            <input type="date" name="newEnd" value="${goal.end_date}">
+                            <br><br>
+                            <input type="submit" value="Save goal">
+                        </form>
+                        <form method="POST" action="/delete_goal">
+                            <input type="hidden" name="id" value="${goal.id}">
+                            <br>
+                            <input type="submit" value="Delete goal">
+                        </form>
+                    </div>
+                <hr>
+                `;
+                container.appendChild(div);
+            });
+
+        } catch (err) {
+            console.error("Failed to load goals:", err);
+        }
+    }
+
+    loadSettingsGoals();
 
 
 </script>
