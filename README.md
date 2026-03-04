@@ -8,7 +8,6 @@ Hosted locally. HTML/CSS website, JavaScript backend, SQLite database
 Users create goals based on frequency, start/end dates, and leniency. Lock function disables goal from being edited after one week past the start date.
 
 To-do:
- - progress bars with deadline progress bars & comparison
  - some kind of confirmation when goals are reached
  - css
  - deploy

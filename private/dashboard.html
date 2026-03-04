@@ -21,12 +21,26 @@ async function loadGoals() {
     return; // Exit the function early
   }
 
+  const today = new Date();
   // 2. If goals exist, loop through them
   goals.forEach(goal => {
     const div = document.createElement("div");
+    const start_date = new Date(goal.start_date);
+    const end_date = new Date(goal.end_date);
+    const date_percent = Math.round((today - start_date)/
+      (end_date - start_date)*100);
+    const progress_percent = Math.round(goal.done/goal.aim*100);
     div.innerHTML = `
-      <strong>${goal.name}</strong><br>
-      Progress: ${goal.done} / ${goal.aim}<br><br>
+      <strong>${goal.name}</strong><br><br>
+      Completed: ${goal.done} / ${goal.aim}<br><br>
+      Progress:
+      <meter value="${progress_percent}" min="0" max="100" 
+        low="${date_percent-25}" high="${date_percent}" optimum="100">${progress_percent}%</meter> 
+      ${progress_percent}%
+      <br><br>
+      Time passed:
+      <meter value="${date_percent}" min="0" max="100">${date_percent}%</meter> ${date_percent}%<br><br>
+      Completed today?<br>
       <input type="checkbox" name="goal_checkbox" value="${goal.id}">
       <br>
       <hr>
