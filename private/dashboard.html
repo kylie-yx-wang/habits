@@ -1,5 +1,9 @@
 <h2>My Goals</h2>
-<div id="goals"></div>
+<form method="POST" action="/incr_goals">
+  <div id="goals"></div>
+  <input type="submit" value="Update Progress" id="incr_button"> 
+</form>
+
 <a href="/settings">Settings</a>
 
 <script>
@@ -13,6 +17,7 @@ async function loadGoals() {
   // 1. Check if the array is empty
   if (goals.length === 0) {
     container.innerHTML = `<p>You have no goals yet. Set a goal in settings!</p>`;
+    document.getElementById("incr_button").style.display = "none";
     return; // Exit the function early
   }
 
@@ -21,7 +26,9 @@ async function loadGoals() {
     const div = document.createElement("div");
     div.innerHTML = `
       <strong>${goal.name}</strong><br>
-      Progress: ${goal.done} / ${goal.aim}
+      Progress: ${goal.done} / ${goal.aim}<br><br>
+      <input type="checkbox" name="goal_checkbox" value="${goal.id}">
+      <br>
       <hr>
     `;
     container.appendChild(div);

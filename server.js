@@ -158,6 +158,42 @@ app.post('/delete_goal', async(req, res) => {
             res.redirect('/settings?updated=1');
         });
 });
+
+app.post('/incr_goals', async(req, res) => {
+  if (!req.session.user) return res.status(401).send("Unauthorized");
+
+  let ids = req.body.goal_checkbox;
+
+  // nothing is checked, just redirect back
+  if (!ids) {
+      return res.redirect('/dashboard');
+  }
+
+  // if only 1 is checked it becomes a string
+  if (!Array.isArray(ids)) {
+      ids = [ids];
+  }
+
+  // Update the database for each ID
+  // use a counter to know when all updates are finished
+  let completed = 0;
+
+  ids.forEach(goalId => {
+      db.run(
+          `UPDATE goals SET done = done + 1 WHERE id = ? AND user_id = ?`,
+          [goalId, req.session.user],
+          (err) => {
+            if (err) return res.redirect('/dashboard?error=update');
+              completed++;
+              if (completed === ids.length) {
+                  // Only redirect once the last update is done
+                  res.redirect('/dashboard?updated=true');
+              }
+          }
+      );
+  });
+  
+});
   
 
 app.listen(3000, () => {

@@ -5,3 +5,7 @@
 .goal_edits {
     display: none;
 }
+
+#incr_button {
+    display: block;
+}
