@@ -177,17 +177,26 @@ app.post('/incr_goals', async(req, res) => {
   // Update the database for each ID
   // use a counter to know when all updates are finished
   let completed = 0;
+  let newlyFinished = false;
 
   ids.forEach(goalId => {
-      db.run(
-          `UPDATE goals SET done = done + 1 WHERE id = ? AND user_id = ?`,
+      db.get(
+          `UPDATE goals SET done = done + 1 WHERE id = ? AND user_id = ?
+          RETURNING done, aim`,
           [goalId, req.session.user],
-          (err) => {
+          (err, row) => {
             if (err) return res.redirect('/dashboard?error=update');
               completed++;
+              if (row.done === row.aim) {
+                newlyFinished = true;
+              }
               if (completed === ids.length) {
                   // Only redirect once the last update is done
-                  res.redirect('/dashboard?updated=true');
+                  if (newlyFinished) {
+                    res.redirect('/dashboard?finished=1');
+                  } else {
+                    res.redirect('/dashboard?updated=1');
+                  }
               }
           }
       );

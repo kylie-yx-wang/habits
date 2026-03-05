@@ -103,7 +103,7 @@
                 const isLocked = goal.lock == 1 && today > lock_date;
 
                 div.innerHTML = `
-                <strong>${goal.name}</strong> ${isLocked ? '🔒' : ''}<br>
+                <strong>${goal.name.toUpperCase()}</strong> ${isLocked ? '🔒' : ''}<br>
                 Target: ${goal.aim} before ${goal.end_date}
                 <button class="edit-btn" data-id="${goal.id}" ${isLocked ? 'disabled' : ''}>
                     ${isLocked ? 'Locked' : 'Edit'}</button>

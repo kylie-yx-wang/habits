@@ -6,7 +6,9 @@
 
 <a href="/settings">Settings</a>
 
+<script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
 <script>
+
 async function loadGoals() {
   const response = await fetch('/goals');
   const goals = await response.json();
@@ -31,7 +33,7 @@ async function loadGoals() {
       (end_date - start_date)*100);
     const progress_percent = Math.round(goal.done/goal.aim*100);
     div.innerHTML = `
-      <strong>${goal.name}</strong><br><br>
+      <strong>${goal.name.toUpperCase()}  ${(goal.done >= goal.aim) ? '  (Done! ✅)': ''}</strong><br><br>
       Completed: ${goal.done} / ${goal.aim}<br><br>
       Progress:
       <meter value="${progress_percent}" min="0" max="100" 
@@ -40,7 +42,7 @@ async function loadGoals() {
       <br><br>
       Time passed:
       <meter value="${date_percent}" min="0" max="100">${date_percent}%</meter> ${date_percent}%<br><br>
-      Completed today?<br>
+      Check one off!<br>
       <input type="checkbox" name="goal_checkbox" value="${goal.id}">
       <br>
       <hr>
@@ -50,4 +52,33 @@ async function loadGoals() {
 }
 
 loadGoals();
+
+// import JSConfetti from 'js-confetti'
+
+const jsConfetti = new JSConfetti();
+
+window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('finished')) {
+      jsConfetti.addConfetti({
+        confettiColors: [
+          '#ff0a54', '#ff477e', '#ff7096', '#ff85a1', '#fbb1bd', '#f9bec7',
+        ],
+        confettiRadius: 6,
+        confettiNumber: 400,
+      });
+    }
+    else if (urlParams.has('updated') || urlParams.has('saved')) {
+      jsConfetti.addConfetti({
+        confettiColors: [
+          '#ff0a54', '#ff477e', '#ff7096', '#ff85a1', '#fbb1bd', '#f9bec7',
+        ],
+        confettiRadius: 4,
+        confettiNumber: 100,
+      });
+    }
+};
+
+
 </script>
