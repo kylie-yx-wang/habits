@@ -36,8 +36,15 @@ async function loadGoals() {
     const date_percent = Math.round((today - start_date)/
       (end_date - start_date)*100);
     const progress_percent = Math.round(goal.done/goal.aim*100);
-    div.innerHTML = `
-      <strong>${goal.name.toUpperCase()}  ${(goal.done >= goal.aim) ? '  (Done! ✅)': ''}</strong><br><br>
+
+    // prevents injection attacks by using text content
+    const goalName = document.createElement("strong");
+    goalName.textContent = `${goal.name.toUpperCase()}  ${(goal.done >= goal.aim) ? '  (Done! ✅)': ''}`;
+    div.appendChild(goalName);
+
+    const innerDiv = document.createElement("div");
+    innerDiv.innerHTML = `
+      <br><br>
       Completed: ${goal.done} / ${goal.aim}<br><br>
       Progress: ${progress_percent}%
       <meter value="${progress_percent}" min="0" max="100" 
@@ -49,6 +56,7 @@ async function loadGoals() {
       <label for="checkbox" class="checkoff-txt">&nbsp;Check one off!</label>
       <br><br>
     `;
+    div.appendChild(innerDiv);
     container.appendChild(div);
   });
 }

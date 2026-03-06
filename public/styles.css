@@ -57,7 +57,7 @@ h2 { color: #333; }
     margin-left: 12px;
 }
 
-button:hover, button:disabled {
+button:hover, button:disabled, #incr_button:hover {
     background-color: #e6396b;
 }
 
