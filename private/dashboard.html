@@ -1,3 +1,7 @@
+<head>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
 <h2>My Goals</h2>
 <form method="POST" action="/incr_goals">
   <div id="goals"></div>
@@ -35,17 +39,15 @@ async function loadGoals() {
     div.innerHTML = `
       <strong>${goal.name.toUpperCase()}  ${(goal.done >= goal.aim) ? '  (Done! ✅)': ''}</strong><br><br>
       Completed: ${goal.done} / ${goal.aim}<br><br>
-      Progress:
+      Progress: ${progress_percent}%
       <meter value="${progress_percent}" min="0" max="100" 
         low="${date_percent-25}" high="${date_percent}" optimum="100">${progress_percent}%</meter> 
-      ${progress_percent}%
       <br><br>
-      Time passed:
-      <meter value="${date_percent}" min="0" max="100">${date_percent}%</meter> ${date_percent}%<br><br>
-      Check one off!<br>
+      Time passed: ${date_percent}%
+      <meter value="${date_percent}" min="0" max="100">${date_percent}%</meter> <br><br>
       <input type="checkbox" name="goal_checkbox" value="${goal.id}">
-      <br>
-      <hr>
+      <label for="checkbox" class="checkoff-txt">&nbsp;Check one off!</label>
+      <br><br>
     `;
     container.appendChild(div);
   });

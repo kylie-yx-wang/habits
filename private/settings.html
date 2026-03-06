@@ -4,7 +4,7 @@
 
 <h1>Settings</h1>
 
-<button id="goal_btn">Make a new goal</button>
+<button id="goal_btn">Set a new goal</button>
 
 <div id="goal_inputs">
     <form method="POST" action="/make_goal">
@@ -36,7 +36,7 @@
         <label for="leniency"><span id="leniency_value">75</span>% of the time.</label><br><br>
 
         <input type="checkbox" id="goal_lock" name="lock">
-        <label for="lock">Lock this goal after 1 week of the start date (I will not be able to edit or delete it).</label><br><br>
+        <label for="lock">Lock this goal 1 week after the start date (I will not be able to edit or delete)</label><br><br>
 
         <input type="submit" value="Set goal!">
     </form>
@@ -90,7 +90,7 @@
 
             // 1. Check if the array is empty
             if (setting_goals.length === 0) {
-                container.innerHTML = `<p>You have no goals yet. Click "Make a new goal" to set your first goal!</p>`;
+                container.innerHTML = `<p>You have no goals yet. Click "Set a new goal" to set your first goal!</p>`;
                 return; // Exit the function early
             }
 

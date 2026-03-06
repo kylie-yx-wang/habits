@@ -6,6 +6,85 @@
     display: none;
 }
 
+
+
+/* General Layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f7f6;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h2 { color: #333; }
+
+#goals > div {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#goals > div:hover {
+    transform: scale(1.02); 
+    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+}
+
+#incr_button, button {
+    background-color: #ff477e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 #incr_button {
     display: block;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 10px;
 }
+
+.edit-btn, .login-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-left: 12px;
+}
+
+button:hover, button:disabled {
+    background-color: #e6396b;
+}
+
+button:disabled {
+    cursor: default;
+}
+
+input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+}  
+
+meter {
+    width: 100%;
+    height: 20px;
+    margin: 5px 0;
+}
+
+.checkoff-txt {
+    font-size: 18px;
+}
+
+a {
+    display: inline-block;
+    margin-top: 20px;
+    color: #666;
+    text-decoration: none;
+    font-size: 20px;
+}
+a:hover { text-decoration: underline; }
