@@ -2,6 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 const app = express();
 const db = new sqlite3.Database('./database.db'); // makes the database
@@ -11,9 +12,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // gets stuff from public folder
 
+
 // login sessions
 app.use(session({
-  secret: 'secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -204,8 +206,8 @@ app.post('/incr_goals', async(req, res) => {
   
 });
   
-
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
 
