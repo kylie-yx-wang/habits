@@ -53,28 +53,7 @@ async function initDb() {
   `);
 }
 initDb();
-// db.serialize(() => {
-//   db.run(`
-//     CREATE TABLE IF NOT EXISTS users (
-//       id INTEGER PRIMARY KEY AUTOINCREMENT,
-//       username TEXT UNIQUE,
-//       password TEXT
-//     )
-//   `);
-//   db.run(`
-//     CREATE TABLE IF NOT EXISTS goals (
-//       id INTEGER PRIMARY KEY AUTOINCREMENT,
-//       user_id INTEGER,
-//       name TEXT,
-//       done INTEGER DEFAULT 0,
-//       aim INTEGER,
-//       start_date DATE,
-//       end_date DATE,
-//       lock BOOLEAN,
-//       FOREIGN KEY(user_id) REFERENCES users(id)
-//     )
-//   `);
-// });
+
 app.get('/', (req, res) => {
   res.redirect('/login.html');
 });
@@ -86,21 +65,27 @@ app.get('/dashboard', (req, res) => {
   
     res.sendFile(__dirname + '/private/dashboard.html');
   });
-  
+
+  app.get('/login.html', (req, res) => {\
+    const filePath = __dirname + '/public/login.html';
+    console.log("Attempting to serve:", filePath);
+    res.sendFile(filePath);
+});
 
 // Register
 app.post('/register', async (req, res) => {
-    const hashed = await bcrypt.hash(req.body.password, 10);
-  
-    pool.query(
-      `INSERT INTO users (username, password) VALUES ($1, $2)`,
-      [req.body.username, hashed],
-      (err) => {
-        if (err) return res.redirect('/login.html?error=exists');
-        res.redirect('/login.html?registered=1');
-      }
-    );
-  });
+  try {
+      const hashed = await bcrypt.hash(req.body.password, 10);
+      await pool.query(
+          `INSERT INTO users (username, password) VALUES ($1, $2)`,
+          [req.body.username, hashed]
+      );
+      res.redirect('/login.html?registered=1');
+  } catch (err) {
+      console.error(err);
+      res.redirect('/login.html?error=exists');
+  }
+});
   
 
 // Login
@@ -121,22 +106,7 @@ app.post('/login', (req, res) => {
   );
 });
 
-// app.get('/goals', (req, res) => {
 
-//     if (!req.session.user) {
-//       return res.status(401).json({ error: "Not logged in" });
-//     }
-  
-//     pool.query(
-//       `SELECT * FROM goals WHERE user_id = $1`,
-//       [req.session.user],
-//       (err, rows) => {
-//         if (err) return res.status(500).json({ error: "Database error" });
-//         res.json(rows);
-//       }
-//     );
-  
-//   });
   app.get('/goals', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: "Not logged in" });
@@ -161,38 +131,6 @@ app.get('/settings', (req, res) => {
     res.sendFile(__dirname + '/private/settings.html');
 });
 
-// add goal
-// app.post('/make_goal', async (req, res) => {
-//     let per = 1;
-//     if (req.body.period == "week") {
-//         per = 7;
-//     } else if (req.body.period == "month") {
-//         per = 30.5;
-//     } else if (req.body.period == "year") {
-//         per = 365;
-//     }
-//     const date1 = new Date(req.body.from);
-//     const date2 = new Date(req.body.to);
-//     const timeDiff = date2 - date1; // diff in milliseconds
-//     const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // convert to days
-
-//     const total = req.body.freq * daysDiff * req.body.leniency / 100 / per ;
-
-//     const isLocked = req.body.lock === 'on' ? 1 : 0;
-//     pool.query(
-//         `INSERT INTO goals (
-//         user_id, name, aim, start_date, end_date, lock)
-//         VALUES ($1, $2, $3, $4, $5, $6)`,
-//         [req.session.user, req.body.name, Math.round(total) || 0, 
-//             req.body.from, req.body.to, isLocked],
-//         (err) => {
-//             if (err) {
-//                 console.error(err);
-//                 return res.redirect('/settings?error=db');
-//             }
-//             res.redirect('/dashboard?saved=1');}
-//       );
-// });
 
 app.post('/make_goal', async (req, res) => {
   try {
@@ -218,14 +156,6 @@ app.post('/make_goal', async (req, res) => {
   }
 });
 
-// app.post('/edit_goal', async(req, res) => {
-//     pool.query(`UPDATE goals SET aim=$1, end_date=$2 WHERE id=$3 AND user_id=$4`,
-//          [req.body.numTimes, req.body.newEnd, req.body.id, req.session.user],
-//          (err) => {
-//             if (err) return res.redirect('/settings?error=update');
-//             res.redirect('/settings?updated=1');
-//         });
-// });
 
 app.post('/edit_goal', async (req, res) => {
   try {
@@ -237,14 +167,7 @@ app.post('/edit_goal', async (req, res) => {
   }
 });
 
-// app.post('/delete_goal', async(req, res) => {
-//     pool.query(`DELETE FROM goals WHERE id=$1 AND user_id=$2`,
-//       [req.body.id, req.session.user],
-//          (err) => {
-//             if (err) return res.redirect('/settings?error=update');
-//             res.redirect('/settings?updated=1');
-//         });
-// });
+
 app.post('/delete_goal', async (req, res) => {
   try {
       await pool.query(`DELETE FROM goals WHERE id=$1 AND user_id=$2`,
@@ -255,50 +178,6 @@ app.post('/delete_goal', async (req, res) => {
   }
 });
 
-// app.post('/incr_goals', async(req, res) => {
-//   if (!req.session.user) return res.status(401).send("Unauthorized");
-
-//   let ids = req.body.goal_checkbox;
-
-//   // nothing is checked, just redirect back
-//   if (!ids) {
-//       return res.redirect('/dashboard');
-//   }
-
-//   // if only 1 is checked it becomes a string
-//   if (!Array.isArray(ids)) {
-//       ids = [ids];
-//   }
-
-//   // Update the database for each ID
-//   // use a counter to know when all updates are finished
-//   let completed = 0;
-//   let newlyFinished = false;
-
-//   ids.forEach(goalId => {
-//       pool.query(
-//           `UPDATE goals SET done = done + 1 WHERE id = $1 AND user_id = $2
-//           RETURNING done, aim`,
-//           [goalId, req.session.user],
-//           (err, row) => {
-//             if (err) return res.redirect('/dashboard?error=update');
-//               completed++;
-//               if (row.done === row.aim) {
-//                 newlyFinished = true;
-//               }
-//               if (completed === ids.length) {
-//                   // Only redirect once the last update is done
-//                   if (newlyFinished) {
-//                     res.redirect('/dashboard?finished=1');
-//                   } else {
-//                     res.redirect('/dashboard?updated=1');
-//                   }
-//               }
-//           }
-//       );
-//   });
-  
-// });
 
 app.post('/incr_goals', async (req, res) => {
   if (!req.session.user) return res.status(401).send("Unauthorized");
