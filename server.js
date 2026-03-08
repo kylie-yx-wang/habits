@@ -66,7 +66,7 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(__dirname + '/private/dashboard.html');
   });
 
-  app.get('/login.html', (req, res) => {\
+  app.get('/login.html', (req, res) => {
     const filePath = __dirname + '/public/login.html';
     console.log("Attempting to serve:", filePath);
     res.sendFile(filePath);
